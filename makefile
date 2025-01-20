@@ -1,41 +1,49 @@
 CFLAGS="/Users/sakchhamsangroula/Personal/CLOX/test/lox1.txt"
 NOWARNINGFLAG = -Wno-all
+DEBUG =  -D DEBUG_TRACE_EXECUTION
 run: final
+	./final $(CFLAGS)
+
+debug:debugFinal
 	./final $(CFLAGS)
 
 final: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o
 	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o -o final $(NOWARNINGFLAG)
 
+
+debugFinal: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o
+	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o -o final $(NOWARNINGFLAG) $(DEBUG)
+
 chunk.o: chunk.c
-	gcc -c chunk.c $(NOWARNINGFLAG) 
+	gcc -c $(DEBUG) chunk.c $(NOWARNINGFLAG) 
 	
 
 compiler.o:compiler.c
-	gcc -c compiler.c $(NOWARNINGFLAG)
+	gcc -c $(DEBUG) compiler.c $(NOWARNINGFLAG)
 	
 
 debug.o:debug.c
-	gcc -c debug.c $(NOWARNINGFLAG)
+	gcc -c $(DEBUG) debug.c $(NOWARNINGFLAG)
 	
 
 main.o:main.c
-	gcc -c main.c $(NOWARNINGFLAG)
+	gcc -c $(DEBUG) main.c $(NOWARNINGFLAG)
 	
 
 memory.o:memory.c
-	gcc -c memory.c $(NOWARNINGFLAG)
+	gcc -c $(DEBUG) memory.c $(NOWARNINGFLAG)
 	
 
 scanner.o:scanner.c
-	gcc -c scanner.c $(NOWARNINGFLAG)
+	gcc -c $(DEBUG) scanner.c $(NOWARNINGFLAG)
 	
 
 value.o:value.c
-	gcc -c value.c $(NOWARNINGFLAG)
+	gcc -c $(DEBUG) value.c $(NOWARNINGFLAG)
 	
 
 vm.o:vm.c
-	gcc -c vm.c $(NOWARNINGFLAG)
+	gcc -c $(DEBUG) vm.c $(NOWARNINGFLAG)
 	
 
 clean: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o

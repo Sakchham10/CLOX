@@ -91,7 +91,7 @@ static void skipWhiteSpace() {
 static TokenType checkKeyword(int start, int length, const char *rest,
                               TokenType type) {
   if (scanner.current - scanner.start == start + length &&
-      memcmp(scanner.start, rest, length) == 0) {
+      memcmp(scanner.start + start, rest, length) == 0) {
     return type;
   }
   return TOKEN_IDENTIFIER;
