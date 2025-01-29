@@ -14,14 +14,14 @@ repl: final
 print:debugPrint
 	./final $(CFLAGS)
 
-final: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o
-	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o -o final $(NOWARNINGFLAG)
+final: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o
+	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o -o final $(NOWARNINGFLAG)
 
-debugFinal: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o
-	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o -o final $(NOWARNINGFLAG) $(DEBUG)
+debugFinal: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o
+	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o -o final $(NOWARNINGFLAG) $(DEBUG)
 
-debugPrint: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o
-	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o -o final $(NOWARNINGFLAG) $(DEBUGPRINT)
+debugPrint: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o
+	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o -o final $(NOWARNINGFLAG) $(DEBUGPRINT)
 
 chunk.o: chunk.c
 	gcc -c $(DEBUG) chunk.c $(NOWARNINGFLAG) 
@@ -53,6 +53,9 @@ value.o:value.c
 
 vm.o:vm.c
 	gcc -c $(DEBUG) vm.c $(NOWARNINGFLAG)
+
+object.o:object.c
+	gcc -c $(DEBUG) object.c $(NOWARNINGFLAG)
 	
 
 clean: 

@@ -4,6 +4,7 @@
 #include "chunk.h"
 #include "common.h"
 #include "compiler.h"
+#include "object.h"
 #include "scanner.h"
 #include "value.h"
 
@@ -256,13 +257,9 @@ static void parsePrecedence(Precedence precedence) {
     return;
   }
   prefixRule();
-  printf("Before advance%c\n", parser.current.start[0]);
-  fflush(stdout);
   while (precedence <= getRule(parser.current.type)->precedence) {
     advance();
     ParseFn infixRule = getRule(parser.previous.type)->infix;
-    printf("Before infix %c\n", parser.current.start[0]);
-    fflush(stdout);
     infixRule();
   }
 }
@@ -277,8 +274,6 @@ bool compile(const char *source, Chunk *chunk) {
   parser.panicMode = false;
 
   advance();
-  printf("Before expression %c\n", parser.current.start[0]);
-  fflush(stdout);
   expression();
   consume(TOKEN_EOF, "Expect end of expression.");
   endCompiler();

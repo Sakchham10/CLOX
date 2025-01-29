@@ -64,7 +64,6 @@ static Token errorToken(const char *message) {
 static void skipWhiteSpace() {
   for (;;) {
     char c = peek();
-    fflush(stdout);
     switch (c) {
     case ' ':
     case '\r':
@@ -155,7 +154,7 @@ static Token identifier() {
 }
 
 static Token number() {
-  while (isDigit(peek()) && !isAtEnd())
+  while (isDigit(peek()))
     advance();
   if (peek() == '.' && isDigit(peekNext())) {
     advance();
@@ -184,7 +183,6 @@ Token scanToken() {
     return makeToken(TOKEN_EOF);
   }
   char c = advance();
-  fflush(stdout);
   if (isAlpha(c))
     return identifier();
   if (isDigit(c)) {
