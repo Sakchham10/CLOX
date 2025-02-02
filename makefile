@@ -106,4 +106,4 @@ Debugobject.o:object.c
 	gcc -c object.c $(NOWARNINGFLAG) $(DEBUG)
 
 clean: 
-	rm chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o final
+	rm chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o final
