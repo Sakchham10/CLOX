@@ -15,14 +15,14 @@ repl: final
 print:debugPrint
 	./final $(CFLAGS)
 
-final: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o
-	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o -o final $(NOWARNINGFLAG)
+final: chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o table.o
+	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o table.o -o final $(NOWARNINGFLAG)
 
-debugFinal: Debugchunk.o Debugcompiler.o Debugdebug.o Debugmain.o Debugmemory.o Debugscanner.o Debugvalue.o Debugvm.o Debugobject.o
-	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o -o final $(NOWARNINGFLAG) $(DEBUG)
+debugFinal: Debugchunk.o Debugcompiler.o Debugdebug.o Debugmain.o Debugmemory.o Debugscanner.o Debugvalue.o Debugvm.o Debugobject.o Debugtable.o
+	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o table.o -o final $(NOWARNINGFLAG) $(DEBUG)
 
-debugPrint: Printchunk.o Printcompiler.o Printdebug.o Printmain.o Printmemory.o Printscanner.o Printvalue.o Printvm.o Printobject.o
-	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o -o final $(NOWARNINGFLAG) $(DEBUGPRINT)
+debugPrint: Printchunk.o Printcompiler.o Printdebug.o Printmain.o Printmemory.o Printscanner.o Printvalue.o Printvm.o Printobject.o Printtable.o
+	gcc chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o Table.o -o final $(NOWARNINGFLAG) $(DEBUGPRINT)
 
 Printchunk.o: chunk.c
 	gcc -c chunk.c $(NOWARNINGFLAG) $(DEBUGPRINT)
@@ -51,6 +51,9 @@ Printvm.o:vm.c
 Printobject.o:object.c
 	gcc -c object.c $(NOWARNINGFLAG) $(DEBUGPRINT)
 
+Printtable.o:table.c
+	gcc -c table.c  $(NOWARNINGFLAG) $(DEBUGPRINT)
+
 chunk.o: chunk.c
 	gcc -c chunk.c $(NOWARNINGFLAG) 
 
@@ -77,6 +80,9 @@ vm.o:vm.c
 
 object.o:object.c
 	gcc -c object.c $(NOWARNINGFLAG) 
+
+table.o:table.c
+	gcc -c table.c $(NOWARNINGFLAG) 
 
 Debugchunk.o: chunk.c
 	gcc -c chunk.c $(NOWARNINGFLAG) $(DEBUG)
@@ -105,5 +111,8 @@ Debugvm.o:vm.c
 Debugobject.o:object.c
 	gcc -c object.c $(NOWARNINGFLAG) $(DEBUG)
 
+Debugtable.o:table.c
+	gcc -c table.c $(NOWARNINGFLAG) $(DEBUG)
+
 clean: 
-	rm chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o final
+	rm chunk.o compiler.o debug.o main.o memory.o scanner.o value.o vm.o object.o table.o final
