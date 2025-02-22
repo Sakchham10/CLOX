@@ -32,8 +32,8 @@ static Entry *findEntry(Entry *entries, int capacity, ObjString *key) {
     } else if (entry->key == key) {
       return entry;
     }
+    index = (index + 1) % capacity;
   }
-  index = (index + 1) % capacity;
 }
 
 bool tableGet(Table *table, ObjString *key, Value *value) {
@@ -115,7 +115,7 @@ ObjString *tableFindString(Table *table, const char *chars, int length,
       if (IS_NIL(entry->value))
         return NULL;
     } else if (entry->key->length == length && entry->key->hash == hash &&
-               memcpy(entry->key->chars, chars, length) == 0) {
+               memcmp(entry->key->chars, chars, length) == 0) {
       return entry->key;
     }
     index = (index + 1) % table->capacity;
