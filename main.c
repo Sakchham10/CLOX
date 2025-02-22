@@ -28,7 +28,7 @@ static char *readFile(const char *path) {
 
   size_t fileSize = ftell(file);
 
-  char *buffer = (char *)malloc(fileSize + 1);
+  char *buffer = (char *)malloc(fileSize);
   if (buffer == NULL) {
     fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
     exit(74);
@@ -39,7 +39,7 @@ static char *readFile(const char *path) {
     fprintf(stderr, "Could not read file \"%s\".\n", path);
     exit(74);
   }
-  buffer[bytesRead] = '\0';
+  buffer[bytesRead - 1] = '\0';
   fclose(file);
   return buffer;
 }
