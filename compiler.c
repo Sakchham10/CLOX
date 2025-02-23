@@ -140,6 +140,10 @@ static void endCompiler() {
   }
 #endif
 }
+
+static void beginScope() { current->scopeDepth++; }
+static void endScope() { current->scopeDepth--; }
+
 static void expression();
 static void statement();
 static void declaration();
@@ -150,12 +154,32 @@ static uint8_t identifierConstant(Token *name) {
   return makeConstant(OBJ_VAL(copyString(name->start, name->length)));
 }
 
+static void addLocal(Token name) {
+  if (current->localCount == UINT8_COUNT) {
+    error("Too many local variables in scope.");
+    return;
+  }
+  Local *local = &current->locals[current->localCount++];
+  local->name = name;
+  local->depth = current->scopeDepth;
+}
+
+  Token *name = &parser.previous;
+  addLocal(*name);
+}
+
 static uint8_t parseVariable(const char *errorMessage) {
   consume(TOKEN_IDENTIFIER, errorMessage);
+  declareVariable();
+  if (current->scopeDepth > 0)
+    return 0;
   return identifierConstant(&parser.previous);
 }
 
 static void defineVariable(uint8_t global) {
+  if (current->scopeDepth > 0) {
+    return;
+  }
   emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
@@ -222,6 +246,13 @@ static void grouping(bool canAssign) {
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
 static void expression() { parsePrecedence(PREC_ASSIGNMENT); }
+
+static void block() {
+  while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
+    declaration();
+  }
+  consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+}
 static void varDeclaration() {
   uint8_t global = parseVariable("Expect variable name.");
   if (match(TOKEN_EQUAL)) {
@@ -277,6 +308,10 @@ static void declaration() {
 static void statement() {
   if (match(TOKEN_PRINT)) {
     printStatement();
+  } else if (match(TOKEN_LEFT_BRACE)) {
+    beginScope();
+    block();
+    endScope();
   } else {
     expressionStatement();
   }
