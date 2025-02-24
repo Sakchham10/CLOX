@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "chunk.h"
 #include "common.h"
@@ -142,7 +143,14 @@ static void endCompiler() {
 }
 
 static void beginScope() { current->scopeDepth++; }
-static void endScope() { current->scopeDepth--; }
+static void endScope() {
+  current->scopeDepth--;
+  while (current->localCount > 0 &&
+         current->locals[current->localCount - 1].depth > current->scopeDepth) {
+    emitByte(OP_POP);
+    current->localCount--;
+  }
+}
 
 static void expression();
 static void statement();
@@ -152,6 +160,12 @@ static void parsePrecedence(Precedence precedence);
 
 static uint8_t identifierConstant(Token *name) {
   return makeConstant(OBJ_VAL(copyString(name->start, name->length)));
+}
+
+static bool identifierEqual(Token *a, Token *b) {
+  if (a->length != b->length)
+    return false;
+  return memcmp(a->start, b->start, a->length) == 0;
 }
 
 static void addLocal(Token name) {
@@ -164,7 +178,17 @@ static void addLocal(Token name) {
   local->depth = current->scopeDepth;
 }
 
+static void declareVariable() {
   Token *name = &parser.previous;
+  for (int i = current->localCount - 1; i >= 0; i--) {
+    Local *local = &current->locals[i];
+    if (local->depth != -1 && local->depth < current->scopeDepth) {
+      break;
+    }
+    if (identifierEqual(name, &local->name)) {
+      error("Already a variable with this name in this scope.");
+    }
+  }
   addLocal(*name);
 }
 
