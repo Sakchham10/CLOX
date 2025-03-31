@@ -47,6 +47,11 @@ typedef struct {
   int depth;
 } Local;
 
+typedef struct {
+  uint8_t index;
+  bool isLocal;
+} UpValue;
+
 typedef enum {
   TYPE_FUNCTION,
   TYPE_SCRIPT,
@@ -58,6 +63,7 @@ typedef struct {
   FunctionType type;
   Local locals[UINT8_COUNT];
   int localCount;
+  UpValue upValues[UINT8_COUNT];
   int scopeDepth;
 } Compiler;
 
@@ -222,10 +228,41 @@ static int resolveLocal(Compiler *compiler, Token *name) {
     Local *local = &compiler->locals[i];
     if (identifierEqual(name, &local->name)) {
       if (local->depth == -1) {
-        error("Can't read local variable in ints own initializer.");
+        error("Can't read local variable in its own initializer.");
       }
       return i;
     }
+  }
+  return -1;
+}
+
+static int addUpvalue(Compiler *compiler, uint8_t index, bool isLocal) {
+  int upValueCount = compiler->function->upValueCount;
+  for (int i = 0; i < upValueCount; i++) {
+    UpValue *upValue = &compiler->upValues[i];
+    if (upValue->index == index && upValue->isLocal == isLocal) {
+      return i;
+    }
+  }
+  if (upValueCount == UINT8_COUNT) {
+    error("Too many closures variables in function.");
+    return 0;
+  }
+  compiler->upValues[upValueCount].isLocal = isLocal;
+  compiler->upValues[upValueCount].index = index;
+  return compiler->function->upValueCount++;
+}
+
+static int resolveUpvalue(Compiler *compiler, Token *name) {
+  if (compiler->enclosing == NULL)
+    return -1;
+  int local = resolveLocal(compiler->enclosing, name);
+  if (local != -1) {
+    return addUpvalue(compiler, (uint8_t)local, true);
+  }
+  int upValue = resolveUpvalue(compiler->enclosing, name);
+  if (upValue != -1) {
+    return addUpvalue(compiler, (uint8_t)upValue, false);
   }
   return -1;
 }
@@ -398,6 +435,10 @@ static void function(FunctionType type) {
 
   ObjFunction *function = endCompiler();
   emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+  for (int i = 0; i < function->upValueCount; i++) {
+    emitByte(compiler.upValues[i].isLocal ? 1 : 0);
+    emitByte(compiler.upValues[i].index);
+  }
 }
 
 static void funDeclaration() {
@@ -586,6 +627,9 @@ static void namedVariable(Token name, bool canAssign) {
   if (arg != -1) {
     getOp = OP_GET_LOCAL;
     setOp = OP_SET_LOCAL;
+  } else if ((arg = resolveUpvalue(current, &name)) != -1) {
+    getOp = OP_GET_UPVALUE;
+    setOp = OP_SET_UPVALUE;
   } else {
     arg = identifierConstant(&name);
     getOp = OP_GET_GLOBAL;

@@ -33,6 +33,7 @@ struct Obj {
 typedef struct {
   Obj obj;
   int arity;
+  int upValueCount;
   Chunk chunk;
   ObjString *name;
 } ObjFunction;
