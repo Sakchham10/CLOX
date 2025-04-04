@@ -10,6 +10,7 @@ typedef enum {
   OP_NIL,
   OP_TRUE,
   OP_CLOSURE,
+  OP_CLOSE_UPVALUE,
   OP_FALSE,
   OP_POP,
   OP_GET_LOCAL,
